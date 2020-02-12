@@ -12,11 +12,17 @@ app.use(bodyParser.json());
 
 app.use(require("./routes/usuario"));
 
-mongoose.connect("mongodb://localhost:27017/cafe", (err, res) => {
-  if (err) throw err;
+mongoose.connect(
+  process.env.URLDB,
+  { useNewUrlParser: true, useCreateIndex: true },
+  (err, res) => {
+    if (err) throw err;
 
-  console.log("Base de datos online");
-});
+    console.log("Base de datos online");
+
+    mongoose.set("useFindAndModify", false);
+  }
+);
 
 app.listen(process.env.PORT, () => {
   console.log(`escuchando puerto ${process.env.PORT}`);

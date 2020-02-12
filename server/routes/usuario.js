@@ -11,10 +11,10 @@ app.get("/usuario", function(req, res) {
   let limite = req.query.limite || 5;
   limite = Number(limite);
 
-  Usuario.find({})
+  Usuario.find({ estado: true }, "nombre email role estado google img")
     .skip(desde)
     .limit(limite)
-    .exec((err, usuarioDB) => {
+    .exec((err, usuarios) => {
       if (err) {
         return res.status(400).json({
           ok: false,
@@ -22,9 +22,12 @@ app.get("/usuario", function(req, res) {
         });
       }
 
-      res.json({
-        ok: true,
-        usuarioDB
+      Usuario.count({ estado: true }, (err, conteo) => {
+        res.json({
+          ok: true,
+          usuarios,
+          cuantos: conteo
+        });
       });
     });
 });
@@ -36,7 +39,8 @@ app.post("/usuario", function(req, res) {
     nombre: body.nombre,
     email: body.email,
     password: bcrypt.hashSync(body.password, 10),
-    role: body.role
+    role: body.role,
+    estado: body.estado
   });
 
   usuario.save((err, usuarioDB) => {
@@ -54,21 +58,36 @@ app.post("/usuario", function(req, res) {
     });
     console.log(usuarioDB);
   });
-
-  // if (body.nombre === undefined) {
-  //   res.status(400).json({
-  //     ok: false,
-  //     mensaje: "el nombre es necesario"
-  //   });
-  // } else {
-  //   res.json({
-  //     body
-  //   });
-  // }
 });
 
-app.delete("/usuario", function(req, res) {
-  res.json("delete usuario");
+app.delete("/usuario/:id", function(req, res) {
+  let id = req.params.id;
+  let cambiaEstado = {
+    estado: false
+  };
+
+  Usuario.findByIdAndUpdate(id, cambiaEstado, (err, usuarioBorrado) => {
+    if (err) {
+      return res.status(400).json({
+        ok: false,
+        err
+      });
+    }
+
+    if (!usuarioBorrado) {
+      return res.status(400).json({
+        ok: false,
+        error: {
+          message: "Usuario no encontrado"
+        }
+      });
+    }
+
+    res.json({
+      ok: true,
+      usuario: usuarioBorrado
+    });
+  });
 });
 
 app.put("/usuario/:id", function(req, res) {
