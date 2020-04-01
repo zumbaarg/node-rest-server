@@ -55,12 +55,10 @@ app.post("/usuario", [verificaToken, verificaAdmin_Role], function(req, res) {
       });
     }
 
-    console.log(usuarioDB);
     res.json({
       ok: true,
       usuario: usuarioDB
     });
-    console.log(usuarioDB);
   });
 });
 
