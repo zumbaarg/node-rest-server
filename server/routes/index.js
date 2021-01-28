@@ -5,5 +5,6 @@ app.use(require("./usuario"));
 app.use(require("./login"));
 app.use(require("./categorias"));
 app.use(require("./producto"));
+app.use(require("./findPaises"));
 
 module.exports = app;
